@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AbhiCyber | Amazon Hot Deals</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0a0f; --surface:#13131a; --card:#1a1a24; --border:#2a2a3a;
+    --amazon:#ff9900; --amazon2:#ffb347; --gold:#f5c842;
+    --text:#f0eee8; --muted:#888899; --hot:#ff3355; --sale:#00e5a0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;
+    background:
+      radial-gradient(ellipse 70% 50% at 15% 10%,rgba(255,153,0,.08) 0%,transparent 60%),
+      radial-gradient(ellipse 60% 40% at 85% 80%,rgba(255,179,71,.05) 0%,transparent 50%);
+    pointer-events:none;z-index:0;}
+
+  /* ── HEADER ── */
+  header{padding:36px 16px 18px;text-align:center;position:relative;z-index:1;}
+  .logo-ring{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,var(--amazon),var(--gold));display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:28px;box-shadow:0 0 32px rgba(255,153,0,.45);animation:glow 3s ease-in-out infinite;}
+  @keyframes glow{0%,100%{box-shadow:0 0 32px rgba(255,153,0,.45);}50%{box-shadow:0 0 60px rgba(255,153,0,.75);}}
+  h1{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,5vw,2.3rem);font-weight:700;background:linear-gradient(135deg,var(--text) 0%,var(--amazon) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .tagline{color:var(--muted);font-size:.82rem;margin-top:5px;letter-spacing:.4px;}
+  .aff-pill{display:inline-flex;align-items:center;gap:7px;background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.25);border-radius:50px;padding:5px 16px;font-size:.72rem;color:var(--sale);margin-top:12px;}
+  .aff-pill strong{font-weight:700;letter-spacing:.3px;}
+
+  /* ── WRAP ── */
+  .wrap{max-width:680px;margin:0 auto;padding:0 16px;position:relative;z-index:1;}
+
+  /* ── SETUP PANEL ── */
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;}
+  .panel-title{font-size:.7rem;text-transform:uppercase;letter-spacing:1.1px;color:var(--amazon);margin-bottom:14px;font-weight:600;}
+
+  .input-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .input-row input,.input-row select{
+    flex:1;min-width:130px;
+    background:var(--card);border:1px solid var(--border);border-radius:8px;
+    padding:9px 13px;color:var(--text);font-size:.83rem;
+    font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;
+  }
+  .input-row input:focus,.input-row select:focus{border-color:var(--amazon);}
+  .input-row input::placeholder{color:var(--muted);}
+  .input-row select option{background:var(--card);}
+
+  .fetch-btn{
+    background:linear-gradient(135deg,var(--amazon),var(--amazon2));
+    border:none;border-radius:8px;padding:10px 22px;
+    color:#000;font-weight:700;font-size:.83rem;
+    cursor:pointer;white-space:nowrap;
+    transition:opacity .2s,transform .1s;
+  }
+  .fetch-btn:hover{opacity:.88;transform:translateY(-1px);}
+  .fetch-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+
+  .hint{margin-top:10px;font-size:.72rem;color:var(--muted);line-height:1.6;}
+  .hint a{color:var(--amazon);text-decoration:none;}
+  .hint a:hover{text-decoration:underline;}
+
+  /* ── DEMO NOTICE ── */
+  .demo-notice{background:rgba(255,153,0,.07);border:1px solid rgba(255,153,0,.2);border-radius:12px;padding:11px 16px;font-size:.76rem;color:var(--amazon2);line-height:1.5;margin-bottom:14px;}
+
+  /* ── STATS ── */
+  .stats-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 16px;font-size:.72rem;color:var(--muted);}
+  .stat strong{color:var(--amazon);font-size:1rem;display:block;}
+
+  /* ── FILTERS ── */
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+  .chip{background:var(--surface);border:1px solid var(--border);border-radius:50px;padding:6px 14px;font-size:.78rem;cursor:pointer;transition:all .2s;color:var(--muted);}
+  .chip.active,.chip:hover{background:var(--amazon);border-color:var(--amazon);color:#000;font-weight:700;}
+
+  /* ── STATUS ── */
+  .status{text-align:center;padding:14px;color:var(--muted);font-size:.84rem;}
+  .spinner{display:inline-block;width:17px;height:17px;border:2px solid var(--border);border-top-color:var(--amazon);border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ── GRID ── */
+  .deals-grid{
+    max-width:900px;margin:0 auto;
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));
+    gap:16px;padding:0 16px 50px;
+    position:relative;z-index:1;
+  }
+  .deal-card{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:16px;overflow:hidden;
+    transition:transform .2s,border-color .2s,box-shadow .2s;
+    animation:fadeUp .4s ease both;
+    display:flex;flex-direction:column;
+  }
+  .deal-card:hover{transform:translateY(-4px);border-color:var(--amazon);box-shadow:0 12px 40px rgba(255,153,0,.15);}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+  .deal-card:nth-child(1){animation-delay:.04s}.deal-card:nth-child(2){animation-delay:.08s}
+  .deal-card:nth-child(3){animation-delay:.12s}.deal-card:nth-child(4){animation-delay:.16s}
+  .deal-card:nth-child(5){animation-delay:.20s}.deal-card:nth-child(6){animation-delay:.24s}
+
+  .deal-img{width:100%;height:155px;object-fit:contain;background:#1e1e2a;display:block;padding:10px;}
+  .deal-placeholder{width:100%;height:155px;background:linear-gradient(135deg,var(--surface),var(--border));display:flex;align-items:center;justify-content:center;font-size:3rem;}
+
+  .deal-body{padding:14px 16px 16px;flex:1;display:flex;flex-direction:column;gap:7px;}
+  .deal-rating{font-size:.72rem;color:var(--amazon2);}
+  .deal-title{font-size:.86rem;line-height:1.4;color:var(--text);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+  .deal-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .hot-badge{background:var(--hot);color:#fff;border-radius:50px;padding:2px 8px;font-size:.65rem;font-weight:700;}
+  .prime-badge{background:rgba(0,168,255,.15);color:#00a8ff;border:1px solid rgba(0,168,255,.3);border-radius:50px;padding:2px 8px;font-size:.65rem;font-weight:700;}
+  .savings-badge{background:rgba(255,51,85,.13);color:var(--hot);border:1px solid rgba(255,51,85,.3);border-radius:50px;padding:2px 8px;font-size:.68rem;font-weight:700;}
+  .deal-cat{font-size:.66rem;color:var(--muted);margin-left:auto;}
+
+  .deal-prices{display:flex;align-items:baseline;gap:8px;margin-top:auto;}
+  .price-sale{font-family:'Playfair Display',serif;font-size:1.25rem;color:var(--sale);font-weight:700;}
+  .price-orig{font-size:.78rem;color:var(--muted);text-decoration:line-through;}
+
+  .deal-link{
+    display:block;margin-top:10px;
+    background:linear-gradient(135deg,rgba(255,153,0,.12),rgba(255,179,71,.08));
+    border:1px solid rgba(255,153,0,.35);
+    border-radius:8px;padding:9px;
+    text-align:center;color:var(--amazon);
+    font-size:.8rem;font-weight:700;text-decoration:none;
+    transition:background .2s,color .2s;
+    position:relative;
+  }
+  .deal-link:hover{background:var(--amazon);color:#000;}
+  .deal-link .asin-tag{font-size:.58rem;opacity:.6;display:block;margin-top:1px;}
+
+  .empty-state{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--muted);}
+  .empty-state .icon{font-size:3rem;margin-bottom:10px;}
+
+  footer{text-align:center;padding:16px 16px 40px;color:var(--muted);font-size:.72rem;position:relative;z-index:1;}
+  footer a{color:var(--amazon);text-decoration:none;}
+  .disc{font-size:.62rem;color:var(--muted);opacity:.65;margin-top:5px;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.5;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-ring">🛒</div>
+  <h1>AbhiCyber Amazon Deals</h1>
+  <p class="tagline">Real-time Amazon hot deals · Scraped fresh via Apify</p>
+  <div class="aff-pill">💰 Amazon Associate &nbsp;·&nbsp; <strong>abhicyber-20</strong></div>
+</header>
+
+<div class="wrap">
+
+  <div class="panel">
+    <div class="panel-title">⚙️ Apify — Amazon Today's Deals Scraper</div>
+    <div class="input-row">
+      <input type="password" id="apifyToken" placeholder="Apify API token…" />
+      <input type="text" id="searchQuery" placeholder='Keyword e.g. "beauty" or "kitchen"' />
+      <select id="catFilter">
+        <option value="">All Categories</option>
+        <option value="Beauty">Beauty &amp; Personal Care</option>
+        <option value="Electronics">Electronics</option>
+        <option value="Home">Home &amp; Kitchen</option>
+        <option value="Clothing">Clothing &amp; Fashion</option>
+        <option value="Toys">Toys &amp; Games</option>
+        <option value="Sports">Sports &amp; Outdoors</option>
+        <option value="Books">Books</option>
+        <option value="Health">Health &amp; Household</option>
+      </select>
+      <button class="fetch-btn" id="fetchBtn" onclick="fetchDeals()">Fetch Amazon Deals 🚀</button>
+    </div>
+    <p class="hint">
+      Free Apify token → <a href="https://console.apify.com/account/integrations" target="_blank">console.apify.com → Integrations</a>.
+      Uses the <strong>Amazon Today's Deals</strong> actor. Every link is tagged <strong>abhicyber-20</strong> automatically.
+    </p>
+  </div>
+
+  <div class="demo-notice" id="demoNotice">
+    💡 <strong>Demo mode</strong> — sample Amazon deals shown. Enter your Apify token and hit <strong>Fetch Amazon Deals</strong> for live data.
+  </div>
+
+  <div class="stats-bar" id="statsBar" style="display:none;">
+    <div class="stat"><strong id="sTotal">0</strong>Deals</div>
+    <div class="stat"><strong id="sHot">0</strong>🔥 Hot</div>
+    <div class="stat"><strong id="sSaving">—</strong>Avg saving</div>
+    <div class="stat"><strong id="sPrime">0</strong>🔵 Prime</div>
+  </div>
+
+  <div class="filters">
+    <div class="chip active" onclick="filterDeals('all',this)">All</div>
+    <div class="chip" onclick="filterDeals('Beauty',this)">Beauty</div>
+    <div class="chip" onclick="filterDeals('Electronics',this)">Tech</div>
+    <div class="chip" onclick="filterDeals('Home',this)">Home</div>
+    <div class="chip" onclick="filterDeals('Clothing',this)">Fashion</div>
+    <div class="chip" onclick="filterDeals('Toys',this)">Toys</div>
+    <div class="chip" onclick="filterDeals('Health',this)">Health</div>
+  </div>
+
+  <div class="status" id="status" style="display:none;"></div>
+
+</div>
+
+<div class="deals-grid" id="dealsGrid"></div>
+
+<footer>
+  Curated by <a href="https://linktr.ee/abhicyber" target="_blank">@abhicyber</a> ·
+  Data via <a href="https://apify.com" target="_blank">Apify</a> · Amazon Today's Deals
+  <div class="disc">As an Amazon Associate I earn from qualifying purchases. Prices and availability are subject to change. Deal prices shown at time of scrape.</div>
+</footer>
+
+<script>
+/* ─── Affiliate config ─── */
+const AMAZON_TAG  = 'abhicyber-20';
+const APIFY_ACTOR = 'rockthedeal~amazon-today-deals-scraper'; // Amazon Today's Deals actor
+
+/* ─── Build affiliate URL ─── */
+function affUrl(rawUrl, asin) {
+  // Prefer ASIN-based clean URL (most reliable for tracking)
+  if (asin) {
+    return `https://www.amazon.com/dp/${asin}?tag=${AMAZON_TAG}`;
+  }
+  if (!rawUrl || rawUrl === '#') return '#';
+  try {
+    const u = new URL(rawUrl);
+    // Make sure it's amazon.com
+    if (!u.hostname.includes('amazon')) return rawUrl;
+    u.searchParams.set('tag', AMAZON_TAG);
+    // Strip noise params that can interfere with tracking
+    ['ref','ref_','linkCode','linkId','camp','creative'].forEach(p => u.searchParams.delete(p));
+    return u.toString();
+  } catch { return rawUrl; }
+}
+
+/* ─── State ─── */
+let allDeals = [];
+let activeFilter = 'all';
+
+/* ─── Demo data (Amazon products with real ASINs) ─── */
+const DEMO = [
+  {title:"Cosrx Snail Mucin 96% Power Repairing Essence",      asin:'B009ZPI6YO',salePrice:'$13.90',origPrice:'$25.00',pct:44,rating:'4.5 ⭐',reviews:87420,hot:true, prime:true, cat:'Beauty',   emoji:'✨'},
+  {title:"Echo Show 8 (3rd Gen) HD Smart Display with Alexa",  asin:'B09B2KSBNQ',salePrice:'$89.99',origPrice:'$149.99',pct:40,rating:'4.6 ⭐',reviews:52300,hot:true, prime:true, cat:'Electronics',emoji:'📱'},
+  {title:"Ninja Creami 7-in-1 Ice Cream Maker NC301",          asin:'B08PNNKZPR',salePrice:'$149.00',origPrice:'$229.99',pct:35,rating:'4.7 ⭐',reviews:31200,hot:true, prime:true, cat:'Home',      emoji:'🍦'},
+  {title:"iRobot Roomba i3 EVO Self-Charging Robot Vacuum",    asin:'B08BFHVVBV',salePrice:'$199.00',origPrice:'$349.99',pct:43,rating:'4.4 ⭐',reviews:24800,hot:true, prime:true, cat:'Home',      emoji:'🤖'},
+  {title:"Kindle Paperwhite (16 GB) — 6.8\" Warm Light",       asin:'B09TMF6742',salePrice:'$99.99',origPrice:'$139.99',pct:29,rating:'4.7 ⭐',reviews:61000,hot:false,prime:true, cat:'Electronics',emoji:'📚'},
+  {title:"L'Oreal Paris Elvive 8-Second Wonder Water",         asin:'B07H3Q8XGY',salePrice:'$7.97', origPrice:'$13.99',pct:43,rating:'4.4 ⭐',reviews:19200,hot:false,prime:true, cat:'Beauty',     emoji:'💆'},
+  {title:"Instant Pot Duo 7-in-1 Electric Pressure Cooker 6Qt",asin:'B00FLYWNYQ',salePrice:'$69.00',origPrice:'$99.95',pct:31,rating:'4.7 ⭐',reviews:138000,hot:true,prime:true, cat:'Home',       emoji:'🍲'},
+  {title:"LEGO Icons Flower Bouquet Building Set 756 Pieces",  asin:'B08F5PQNHF',salePrice:'$45.00',origPrice:'$59.99',pct:25,rating:'4.8 ⭐',reviews:15600,hot:false,prime:true, cat:'Toys',       emoji:'🌸'},
+  {title:"Apple AirPods Pro (2nd Gen) USB-C",                  asin:'B0BSHF7WHD',salePrice:'$189.00',origPrice:'$249.00',pct:24,rating:'4.7 ⭐',reviews:43200,hot:true, prime:true, cat:'Electronics',emoji:'🎧'},
+  {title:"CeraVe Moisturizing Cream 19oz — Face & Body",       asin:'B00TTD9BRC',salePrice:'$14.42',origPrice:'$21.00',pct:31,rating:'4.8 ⭐',reviews:221000,hot:true,prime:true, cat:'Beauty',     emoji:'🧴'},
+  {title:"Fitbit Charge 6 Activity Tracker with GPS",          asin:'B0CCH73T1N',salePrice:'$99.95',origPrice:'$159.95',pct:38,rating:'4.2 ⭐',reviews:8400, hot:false,prime:true, cat:'Health',     emoji:'⌚'},
+  {title:"Columbia Women's Arcadia II Packable Rain Jacket",   asin:'B003VWJ2KW',salePrice:'$49.99',origPrice:'$90.00',pct:44,rating:'4.5 ⭐',reviews:34100,hot:false,prime:true, cat:'Clothing',   emoji:'🧥'},
+];
+
+/* ─── Fetch from Apify ─── */
+async function fetchDeals() {
+  const token = document.getElementById('apifyToken').value.trim();
+  const query = document.getElementById('searchQuery').value.trim();
+  const cat   = document.getElementById('catFilter').value;
+  const btn   = document.getElementById('fetchBtn');
+
+  if (!token) { showStatus('⚠️ Paste your Apify token first.', true); return; }
+
+  btn.disabled = true;
+  showStatus('<span class="spinner"></span> Scraping Amazon Today\'s Deals via Apify… (20–40s)');
+
+  const input = {
+    ...(query    && { keyword: query }),
+    ...(cat      && { category: cat }),
+    maxItems: 40,
+    // Apify actor may also accept these field names:
+    ...(query    && { searchKeyword: query }),
+    ...(cat      && { departmentName: cat }),
+  };
+
+  try {
+    const endpoint = `https://api.apify.com/v2/acts/${APIFY_ACTOR}/run-sync-get-dataset-items?token=${token}&timeout=120`;
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input)
+    });
+
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      throw new Error(e.error?.message || `HTTP ${res.status} — check your token`);
+    }
+
+    const raw = await res.json();
+    const items = Array.isArray(raw) ? raw : (raw.items || []);
+    if (!items.length) throw new Error('No deals returned. Try removing the keyword/category filter.');
+
+    allDeals = normalizeAmazon(items);
+    document.getElementById('demoNotice').style.display = 'none';
+    updateStats(allDeals);
+    hideStatus();
+    render(filtered());
+
+  } catch (err) {
+    showStatus(`❌ ${err.message}. Showing demo data.`, true);
+    allDeals = DEMO;
+    render(filtered());
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* ─── Normalize Amazon Apify response ─── */
+function normalizeAmazon(raw) {
+  return raw.map(d => {
+    // Apify Amazon actors use various field names — handle all common ones
+    const asin      = d.asin || d.ASIN || extractAsin(d.url || d.productUrl || '');
+    const title     = d.title || d.name || d.productName || 'Amazon Deal';
+    const salePrice = fmt(d.salePrice || d.price || d.dealPrice || d.currentPrice);
+    const origPrice = fmt(d.originalPrice || d.listPrice || d.regularPrice || d.wasPrice);
+    const pct       = d.discountPercentage || d.savingsPercent || d.discount ||
+                      calcPct(salePrice, origPrice);
+    const rating    = d.rating || d.starRating
+                      ? `${d.rating || d.starRating} ⭐` : null;
+    const reviews   = d.reviewsCount || d.ratingsTotal || d.numRatings || 0;
+    const hot       = !!(d.isDeal || d.isLightningDeal || d.isBestDeal || pct > 30);
+    const prime     = !!(d.isPrime || d.prime || true); // most Amazon deals are Prime
+    const cat       = d.category || d.department || d.breadcrumbs?.[0] || 'Amazon';
+    const img       = d.imageUrl || d.image || d.thumbnail || d.mainImage || null;
+    const emoji     = catEmoji(cat);
+    return { asin, title, salePrice, origPrice, pct, rating, reviews, hot, prime, cat, img, emoji };
+  }).filter(d => d.title && d.salePrice); // drop incomplete rows
+}
+
+function fmt(v) {
+  if (!v && v !== 0) return null;
+  if (typeof v === 'string' && v.includes('$')) return v;
+  const n = parseFloat(String(v).replace(/[^0-9.]/g,''));
+  return isNaN(n) ? null : `$${n.toFixed(2)}`;
+}
+function calcPct(s, o) {
+  if (!s || !o) return null;
+  const sv = parseFloat(s.replace(/[^0-9.]/g,'')), ov = parseFloat(o.replace(/[^0-9.]/g,''));
+  if (!sv || !ov || ov <= sv) return null;
+  return Math.round((1 - sv/ov)*100);
+}
+function extractAsin(url) {
+  const m = url.match(/\/dp\/([A-Z0-9]{10})/);
+  return m ? m[1] : null;
+}
+function catEmoji(c) {
+  const s = (c||'').toLowerCase();
+  if (s.includes('beauty') || s.includes('skin') || s.includes('hair')) return '💄';
+  if (s.includes('electron') || s.includes('tech') || s.includes('computer')) return '📱';
+  if (s.includes('home') || s.includes('kitchen') || s.includes('appliance')) return '🏠';
+  if (s.includes('cloth') || s.includes('fashion') || s.includes('apparel')) return '👗';
+  if (s.includes('toy') || s.includes('game') || s.includes('lego')) return '🎁';
+  if (s.includes('health') || s.includes('vitamin') || s.includes('supplement')) return '💊';
+  if (s.includes('sport') || s.includes('outdoor') || s.includes('fitness')) return '🏃';
+  if (s.includes('book')) return '📚';
+  return '🏷️';
+}
+
+/* ─── Filter ─── */
+function filtered() {
+  if (activeFilter === 'all') return allDeals;
+  return allDeals.filter(d => (d.cat||'').toLowerCase().includes(activeFilter.toLowerCase()));
+}
+function filterDeals(cat, el) {
+  activeFilter = cat;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  render(filtered());
+}
+
+/* ─── Render ─── */
+function render(deals) {
+  const g = document.getElementById('dealsGrid');
+  if (!deals.length) {
+    g.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>No deals found. Try a different filter.</p></div>';
+    return;
+  }
+  g.innerHTML = deals.map(d => {
+    const href = affUrl(null, d.asin);
+    return `
+      <div class="deal-card">
+        ${d.img
+          ? `<img class="deal-img" src="${d.img}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+          : ''}
+        <div class="deal-placeholder" style="${d.img ? 'display:none' : ''}">${d.emoji}</div>
+        <div class="deal-body">
+          ${d.rating ? `<div class="deal-rating">${d.rating}${d.reviews ? ` (${Number(d.reviews).toLocaleString()})` : ''}</div>` : ''}
+          <div class="deal-title">${d.title}</div>
+          <div class="deal-meta">
+            ${d.hot   ? '<span class="hot-badge">🔥 HOT</span>' : ''}
+            ${d.prime ? '<span class="prime-badge">🔵 Prime</span>' : ''}
+            ${d.pct   ? `<span class="savings-badge">-${d.pct}%</span>` : ''}
+            <span class="deal-cat">${d.cat || 'Amazon'}</span>
+          </div>
+          <div class="deal-prices">
+            ${d.salePrice ? `<span class="price-sale">${d.salePrice}</span>` : ''}
+            ${d.origPrice ? `<span class="price-orig">${d.origPrice}</span>` : ''}
+          </div>
+          <a class="deal-link" href="${href}" target="_blank" rel="noopener noreferrer">
+            Shop on Amazon →
+            <span class="asin-tag">${d.asin ? `ASIN: ${d.asin}` : ''} · tag: ${AMAZON_TAG}</span>
+          </a>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ─── Stats ─── */
+function updateStats(deals) {
+  const savings = deals.map(d => d.pct).filter(Boolean);
+  const avg = savings.length ? Math.round(savings.reduce((a,b)=>a+b,0)/savings.length) : null;
+  document.getElementById('sTotal').textContent  = deals.length;
+  document.getElementById('sHot').textContent    = deals.filter(d=>d.hot).length;
+  document.getElementById('sSaving').textContent = avg ? `${avg}%` : '—';
+  document.getElementById('sPrime').textContent  = deals.filter(d=>d.prime).length;
+  document.getElementById('statsBar').style.display = 'flex';
+}
+
+/* ─── Status ─── */
+function showStatus(html, err=false) {
+  const el = document.getElementById('status');
+  el.style.display = 'block';
+  el.style.color = err ? '#ff6b6b' : 'var(--muted)';
+  el.innerHTML = html;
+}
+function hideStatus() { document.getElementById('status').style.display = 'none'; }
+
+/* ─── Init ─── */
+allDeals = DEMO;
+render(DEMO);
+</script>
+</body>
+</html>
